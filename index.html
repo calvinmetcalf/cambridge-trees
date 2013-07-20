@@ -23,10 +23,8 @@
 <title>Pavement Markings</title></head><body>
 <div id="map"></div>
 
-<script src="js/colorbrewer.js"></script>
 <script src="js/leaflet.js"></script>
 <script src="js/topojson.v1.min.js"></script>
-<script src="js/sha512.js"></script>
 <script src="js/communist.min.js"></script>
 
 <script>
@@ -41,9 +39,10 @@ var worker = cw(function(url,cb){
 			json = JSON.parse(request.responseText);
 			topo=topojson.feature(json,json.objects[Object.keys(json.objects)[0]]);
 			console.log(topo.features.length,' features');
-			topo.features.forEach(function(a){
-				that.fire('geojson',a);
-			});
+			that.fire('fullgeojson',topo);
+			//topo.features.forEach(function(a){
+				//that.fire('geojson',a);
+			//});
 		}
 	};
 	request.send();
@@ -71,12 +70,15 @@ var options = {
 				return k + ": " + feature.properties[k] ;
 			}).join("<br />"),{maxHeight:200});
     	}
-	},
-    style:function(feature){
-        return{opacity:1,fillOpacity:0.7,radius:6,color : colorbrewer.Spectral[11][parseInt((new jsSHA(JSON.stringify(feature), "TEXT")).getHash("SHA-512", "HEX").slice(0,16),16)%11]}
-    }
+	}
 };
 var geojson = L.geoJson({features:[]},options).addTo(m);
+var json;
+worker.on('fullgeojson',function(a){
+	console.log('got it');
+	json = a;
+	geojson.addData(a);
+});
 worker.on('geojson',function(a){
 	geojson.addData(a);
 });

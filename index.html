@@ -29,64 +29,8 @@
 <script src="js/leaflet.markercluster.js"></script>
 <script src="js/topojson.v1.min.js"></script>
 <script src="js/communist.min.js"></script>
-
-<script>
-var worker = cw(function(url,cb){
-	var that = this;
-    var request = new XMLHttpRequest();
-	request.open("GET", url);
-	request.onreadystatechange = function() {
-		var json;
-		if (request.readyState === 4 && request.status === 200) {
-			json = JSON.parse(request.responseText);
-			console.log(json.features.length,' features');
-			json.features.forEach(function(a){
-				that.fire('geojson',a);
-			});
-			that.fire('done');
-		}
-	};
-	request.send();
-	}
-);
-var m = L.map("map",{zoomControl:false}).setView([42.37176642783951, -71.10875129699707],14);
-var url = 'http://otile{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.jpeg';
-
-var attributionText = 'Tiles Courtesy of <a href="http://www.mapquest.com/">MapQuest</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
-
-var mapquestSubdomains = '1234';
-
-var optionsObject = {
-    attribution : attributionText,
-    subdomains : mapquestSubdomains
-}
-
-var mq=L.tileLayer(url, optionsObject).addTo(m);
-
-//make the map
-var options = {
-	onEachFeature:function(feature, layer) {
-		if (feature.properties) {
-			layer.bindPopup(Object.keys(feature.properties).map(function(k){
-				return k + ": " + feature.properties[k] ;
-			}).join("<br />"),{maxHeight:200});
-    	}
-	}
-};
-var clusters= new L.MarkerClusterGroup();
-clusters.addTo(m);
-var markers=[];
-worker.on('geojson',function(a){
-	var marker = L.marker([a.geometry.coordinates[1],a.geometry.coordinates[0]]);
-	options.onEachFeature(a,marker);
-	markers.push(marker);
-});
-worker.on('done',function(){
-	clusters.addLayers(markers);
-	worker.close();
-});
-worker.data(communist.makeUrl('DPW_StreetTrees.geojson'))
-</script>
+<script src="js/leaflet.spin.js"></script>
+<script src="js/script.js"></script>
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

@@ -78,10 +78,12 @@ clusters.addTo(m);
 var markers=[];
 worker.on('geojson',function(a){
 	var marker = L.marker([a.geometry.coordinates[1],a.geometry.coordinates[0]]);
+	options.onEachFeature(a,marker);
 	markers.push(marker);
 });
 worker.on('done',function(){
 	clusters.addLayers(markers);
+	worker.close();
 });
 worker.data(communist.makeUrl('DPW_StreetTrees.geojson'))
 </script>
